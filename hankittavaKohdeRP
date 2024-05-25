@@ -14,6 +14,7 @@ Sub hankittavaKohdeRP()
     Dim pos As Integer
     Dim words() As String
     Dim i As Integer
+    Dim foundNonCaps As Boolean
     
     ' Aseta Write-työkirjan työkirja
     Set ws = ThisWorkbook.Sheets("Write")
@@ -59,18 +60,20 @@ Sub hankittavaKohdeRP()
     For Each cell In searchRange
         If cell.Value Like startText & "*" Then
             hankittavaFound = True
-            tempText = ""
-            currentRow = cell.Row
+            currentRow = cell.Row + 1
+            foundNonCaps = False
             
             ' Etsi ensimmäinen ei-capslock-sana ja aloita text scrape
             Do While ws.Cells(currentRow, 2).Value <> ""
                 words = Split(ws.Cells(currentRow, 2).Value, " ")
                 For i = LBound(words) To UBound(words)
                     If Not IsAllCaps(words(i)) Then
-                        tempText = Join(Application.Index(words, 0, i + 1), " ")
-                        Exit Do
+                        tempText = Mid(ws.Cells(currentRow, 2).Value, InStr(ws.Cells(currentRow, 2).Value, words(i)))
+                        foundNonCaps = True
+                        Exit For
                     End If
                 Next i
+                If foundNonCaps Then Exit Do
                 currentRow = currentRow + 1
             Loop
             
