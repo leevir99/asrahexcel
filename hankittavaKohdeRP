@@ -1,0 +1,84 @@
+Sub hankittavaKohdeRP()
+    Dim ws As Worksheet
+    Dim startCell As Range
+    Dim endCell1 As Range
+    Dim endCell2 As Range
+    Dim searchRange As Range
+    Dim cell As Range
+    Dim currentRow As Long
+    Dim outputRow As Long
+    Dim startText As String
+    Dim scrapedText As String
+    Dim hankittavaFound As Boolean
+    
+    ' Aseta Write-työkirjan työkirja
+    Set ws = ThisWorkbook.Sheets("Write")
+    
+    ' Määritä muuttujat
+    startText = "Hankittava kohde: "
+    outputRow = 1
+    hankittavaFound = False
+    
+    ' Etsi "Ratkaisuehdotus" solu ja määritä aloitussolu
+    For Each cell In ws.Range("B:B")
+        If Trim(cell.Value) = "Ratkaisuehdotus" Then
+            Set startCell = cell
+            Exit For
+        End If
+    Next cell
+    
+    ' Jos aloitussolua ei löydy, lopeta makro
+    If startCell Is Nothing Then
+        MsgBox "Ratkaisuehdotus solu ei löydy."
+        Exit Sub
+    End If
+    
+    ' Etsi päättävä solut "Luotot yhteensä" ja "Vakuudet yhteensä"
+    For Each cell In ws.Range(startCell.Offset(1, 0), ws.Cells(ws.Rows.Count, 2))
+        If cell.Value Like "Luotot yhteensä*" And cell.Offset(1, 0).Value Like "Vakuudet yhteensä*" Then
+            Set endCell1 = cell
+            Set endCell2 = cell.Offset(1, 0)
+            Exit For
+        End If
+    Next cell
+    
+    ' Jos päättävää soluja ei löydy, lopeta makro
+    If endCell1 Is Nothing Or endCell2 Is Nothing Then
+        MsgBox "Päättävät solut eivät löydy."
+        Exit Sub
+    End If
+    
+    ' Määritä hakuväli
+    Set searchRange = ws.Range(startCell.Offset(1, 0), endCell1.Offset(-1, 0))
+    
+    ' Etsi ja tallenna "Hankittava kohde" tiedot
+    For Each cell In searchRange
+        If cell.Value Like startText & "*" Then
+            hankittavaFound = True
+            scrapedText = ""
+            currentRow = cell.Row
+            Do While ws.Cells(currentRow, 2).Value <> ""
+                If Not IsAllCaps(ws.Cells(currentRow, 2).Value) Then
+                    scrapedText = scrapedText & " " & ws.Cells(currentRow, 2).Value
+                    If InStr(ws.Cells(currentRow, 2).Value, ", Käypä arvo") > 0 Then
+                        scrapedText = Left(scrapedText, InStr(scrapedText, ", Käypä arvo") - 1)
+                        Exit Do
+                    End If
+                End If
+                currentRow = currentRow + 1
+            Loop
+            ws.Cells(outputRow, 11).Value = Trim(scrapedText)
+            outputRow = outputRow + 1
+        End If
+    Next cell
+    
+    ' Jos "Hankittava kohde" soluja ei löydy, ilmoita käyttäjälle
+    If Not hankittavaFound Then
+        MsgBox "Hankittava kohde soluja ei löydy."
+    End If
+End Sub
+
+' Funktio, joka tarkistaa onko teksti kokonaan isoilla kirjaimilla
+Function IsAllCaps(text As String) As Boolean
+    IsAllCaps = (StrComp(text, UCase(text), vbBinaryCompare) = 0)
+End Function
