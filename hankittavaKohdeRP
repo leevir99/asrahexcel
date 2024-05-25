@@ -10,6 +10,10 @@ Sub hankittavaKohdeRP()
     Dim startText As String
     Dim scrapedText As String
     Dim hankittavaFound As Boolean
+    Dim tempText As String
+    Dim pos As Integer
+    Dim words() As String
+    Dim i As Integer
     
     ' Aseta Write-työkirjan työkirja
     Set ws = ThisWorkbook.Sheets("Write")
@@ -55,19 +59,34 @@ Sub hankittavaKohdeRP()
     For Each cell In searchRange
         If cell.Value Like startText & "*" Then
             hankittavaFound = True
-            scrapedText = ""
+            tempText = ""
             currentRow = cell.Row
+            
+            ' Etsi ensimmäinen ei-capslock-sana ja aloita text scrape
             Do While ws.Cells(currentRow, 2).Value <> ""
-                If Not IsAllCaps(ws.Cells(currentRow, 2).Value) Then
-                    scrapedText = scrapedText & " " & ws.Cells(currentRow, 2).Value
-                    If InStr(ws.Cells(currentRow, 2).Value, ", Käypä arvo") > 0 Then
-                        scrapedText = Left(scrapedText, InStr(scrapedText, ", Käypä arvo") - 1)
+                words = Split(ws.Cells(currentRow, 2).Value, " ")
+                For i = LBound(words) To UBound(words)
+                    If Not IsAllCaps(words(i)) Then
+                        tempText = Join(Application.Index(words, 0, i + 1), " ")
                         Exit Do
                     End If
+                Next i
+                currentRow = currentRow + 1
+            Loop
+            
+            ' Jatka text scrape kunnes ", Käypä arvo" löytyy
+            Do While ws.Cells(currentRow, 2).Value <> ""
+                pos = InStr(ws.Cells(currentRow, 2).Value, ", Käypä arvo")
+                If pos > 0 Then
+                    tempText = tempText & " " & Left(ws.Cells(currentRow, 2).Value, pos - 1)
+                    Exit Do
+                Else
+                    tempText = tempText & " " & ws.Cells(currentRow, 2).Value
                 End If
                 currentRow = currentRow + 1
             Loop
-            ws.Cells(outputRow, 11).Value = Trim(scrapedText)
+            
+            ws.Cells(outputRow, 11).Value = Trim(tempText)
             outputRow = outputRow + 1
         End If
     Next cell
@@ -78,7 +97,7 @@ Sub hankittavaKohdeRP()
     End If
 End Sub
 
-' Funktio, joka tarkistaa onko teksti kokonaan isoilla kirjaimilla
-Function IsAllCaps(text As String) As Boolean
-    IsAllCaps = (StrComp(text, UCase(text), vbBinaryCompare) = 0)
+' Funktio, joka tarkistaa onko sana kokonaan isoilla kirjaimilla
+Function IsAllCaps(word As String) As Boolean
+    IsAllCaps = (StrComp(word, UCase(word), vbBinaryCompare) = 0)
 End Function
