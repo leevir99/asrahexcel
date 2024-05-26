@@ -90,7 +90,8 @@ Sub hankittavaKohdeRP()
                 currentRow = currentRow + 1
             Loop
             
-            ws.Cells(outputRow, 11).Value = Trim(tempText)
+            ' Poista ylimääräiset välilyönnit ja päivitä solu
+            ws.Cells(outputRow, 11).Value = Application.Trim(tempText)
             outputRow = outputRow + 1
         End If
     Next cell
