@@ -100,7 +100,7 @@ Sub hankittavaKohdeRP()
         tempText = ws.Cells(i, 11).Value
         pos = InStr(tempText, ", Käypä arvo")
         If pos > 0 Then
-            ws.Cells(i, 11).Value = Left(tempText, pos - 1)
+            ws.Cells(i, 11).Value = Trim(Left(tempText, pos - 1))
         End If
     Next i
     
