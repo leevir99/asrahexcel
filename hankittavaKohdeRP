@@ -62,6 +62,7 @@ Sub hankittavaKohdeRP()
             hankittavaFound = True
             currentRow = cell.Row + 1
             foundNonCaps = False
+            tempText = ""
             
             ' Etsi ensimmäinen ei-capslock-sana ja aloita text scrape
             Do While ws.Cells(currentRow, 2).Value <> ""
@@ -77,9 +78,9 @@ Sub hankittavaKohdeRP()
                 currentRow = currentRow + 1
             Loop
             
-            ' Jatka text scrape kunnes "Käypä arvo" löytyy
+            ' Jatka text scrape kunnes ", Käypä arvo" löytyy
             Do While ws.Cells(currentRow, 2).Value <> ""
-                pos = InStr(ws.Cells(currentRow, 2).Value, "Käypä arvo")
+                pos = InStr(ws.Cells(currentRow, 2).Value, ", Käypä arvo")
                 If pos > 0 Then
                     tempText = tempText & " " & Left(ws.Cells(currentRow, 2).Value, pos - 1)
                     Exit Do
