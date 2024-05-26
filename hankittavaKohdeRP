@@ -81,7 +81,7 @@ Sub hankittavaKohdeRP()
             Do While ws.Cells(currentRow, 2).Value <> ""
                 pos = InStr(ws.Cells(currentRow, 2).Value, "Käypä arvo")
                 If pos > 0 Then
-                    tempText = tempText & " " & Left(ws.Cells(currentRow, 2).Value, pos - 2)
+                    tempText = tempText & " " & Left(ws.Cells(currentRow, 2).Value, pos - 1)
                     Exit Do
                 Else
                     tempText = tempText & " " & ws.Cells(currentRow, 2).Value
