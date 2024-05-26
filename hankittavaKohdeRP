@@ -8,7 +8,6 @@ Sub hankittavaKohdeRP()
     Dim currentRow As Long
     Dim outputRow As Long
     Dim startText As String
-    Dim scrapedText As String
     Dim hankittavaFound As Boolean
     Dim tempText As String
     Dim pos As Integer
