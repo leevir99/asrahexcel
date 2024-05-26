@@ -95,6 +95,15 @@ Sub hankittavaKohdeRP()
         End If
     Next cell
     
+    ' Varmista, että kaikki K-sarakkeen solut eivät sisällä ", Käypä arvo" ja jälkeistä tekstiä
+    For i = 1 To outputRow - 1
+        tempText = ws.Cells(i, 11).Value
+        pos = InStr(tempText, ", Käypä arvo")
+        If pos > 0 Then
+            ws.Cells(i, 11).Value = Left(tempText, pos - 1)
+        End If
+    Next i
+    
     ' Jos "Hankittava kohde" soluja ei löydy, ilmoita käyttäjälle
     If Not hankittavaFound Then
         MsgBox "Hankittava kohde soluja ei löydy."
